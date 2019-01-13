@@ -2,31 +2,36 @@ import numpy as np
 import theano
 import theano.tensor as T
 
-lr = 0.1
-p1 = theano.shared(np.array([.0, .0, .0]))
-p2 = theano.shared(np.array([.1, .2, .1]))
+cos_ta = -1.0 / 3.0
+lr = 0.003
+root = theano.shared(np.array([.0, .0, .0]))
+nodes = [theano.shared(np.random.randn(3)) for i in range(2)]
 
-
-cost = (1 - T.sum((p1 - p2)**2))**2
+cost = (1 - T.sum((root - nodes[0])**2))**2 + (1 - T.sum((nodes[0] - nodes[1])**2))**2 + (cos_ta - (root-nodes[0]).dot(nodes[0] - nodes[1]))**2
 
 #gp1, gp2 = T.grad(cost, [p1, p2])
-gp2 = T.grad(cost, p2)
+gnodes = []
+updates = []
+for node in nodes:
+  gnode = T.grad(cost, node)
+  gnodes.append(gnode)
+  updates.append((node, node - lr*gnode))
+  
 minimize = theano.function(
         inputs=[],
-        outputs=[cost],
-#        updates= [(p1, p1 - lr*gp1), (p2, p2 - lr*gp2)] )
-        updates= [(p2, p2 - lr*gp2)] )
 
+        outputs=[cost],
+        updates= updates )
 #p1_init = np.randn(3)
 #p2_init = np.randn(3)
-
-for i in range(30):
-    obj = minimize()
+obj = minimize()[0]
+while obj > 1e-5:
+    obj = minimize()[0]
     print(obj)
 
 print("Final Positions: ")
-p1_v = p1.get_value()
-p2_v = p2.get_value()
-print("p1: ", p1_v)
-print("p2: ", p2_v)
-print("dist(p1, p2) = ", (p1_v - p2_v).dot(p1_v - p2_v))
+root_v = root.get_value()
+nodes_v = [node.get_value() for node in nodes]
+print("nodes: ", nodes_v)
+print("dist(node1, node2) = ", np.sum((nodes_v[0] - nodes_v[1])**2))
+print("cos(root - node1, node1 - node2) = ", (nodes_v[0] -nodes_v[1]).dot(root_v - nodes_v[0]))
