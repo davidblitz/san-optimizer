@@ -58,8 +58,16 @@ lr = 0.003
 #adj_mat = [[0, 1, 0],
 #           [1, 0, 1],
 #           [0, 1, 0]]
+
+#pentagon
+#adj_mat = [[0, 1, 0, 0, 0],
+#           [1, 0, 1, 0, 0],
+#           [0, 1, 0, 1, 0],
+#           [0, 0, 1, 0, 1],
+#           [1, 0, 0, 1, 0]]
+
 #adj_mat = [[0, 1, 0, 0, 0, 1],
-#           [1, 0, 2, 0, 0, 0],
+#           [1, 0, 1, 0, 0, 0],
 #           [0, 1, 0, 1, 0, 0],
 #           [0, 0, 1, 0, 1, 0],
 #           [0, 0, 0, 1, 0, 1],
@@ -89,16 +97,22 @@ for node in nodes:
 minimize = theano.function(
         inputs=[],
         outputs=[cost],
-        updates= updates)
+        updates= updates,
+        mode="FAST_COMPILE")
+
 print("Minimizing Objective...")
 obj = minimize()[0]
-while obj > 1e-5:
+while obj > w1e0:
     obj = minimize()[0]
     print(obj)
 
 print("Final Positions: ")
 #root_v = nodes[0].var.get_value()
+print("{")
 nodes_v = {chr(ord("A") + i) : node.var.get_value().tolist() for i, node in enumerate(nodes)}
-print("nodes: ", nodes_v)
+#print("nodes: ", nodes_v)
+for key, item in nodes_v.items():
+    print(key, ":", item, ",")
+print("}")
 #print("dist(node0, node1) = ", np.sum((nodes_v[0] - nodes_v[1])**2))
 #print("cos(root - node1, node1 - node2) = ", (nodes_v[1] -nodes_v[2]).dot(nodes_v[0] - nodes_v[1]))
