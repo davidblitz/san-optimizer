@@ -72,7 +72,7 @@ lr = 0.003
 #           [0, 0, 1, 0, 1, 0],
 #           [0, 0, 0, 1, 0, 1],
 #           [1, 0, 0, 0, 1, 0]]
-adj_mat = np.loadtxt("dodecahedron-adjacency2.csv")
+adj_mat = np.loadtxt("dodecahedron-adjacency.csv")
 print(adj_mat)
 nodes = nodes_from_mat(adj_mat)
 print(len(nodes))
@@ -102,7 +102,7 @@ minimize = theano.function(
 
 print("Minimizing Objective...")
 obj = minimize()[0]
-while obj > w1e0:
+while obj > 1e-1:
     obj = minimize()[0]
     print(obj)
 
